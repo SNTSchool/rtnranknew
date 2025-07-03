@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OAuth Callback</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 OAuth Callback Received</h1>
+  <p id="status">Processing...</p>
+
+  <script>
+    // Parse the query string
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const error = params.get("error");
+
+    if (error) {
+      document.getElementById("status").textContent = `Error: ${error}`;
+    } else if (code) {
+      document.getElementById("status").textContent = `Authorization code received: ${code}`;
+
+      
+      fetch("/api/exchange", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("status").textContent = "✅ Authorization successful!";
+      })
+      .catch(err => {
+        document.getElementById("status").textContent = "❌ Error exchanging code.";
+      });
+     
+    } else {
+      document.getElementById("status").textContent = "No code received.";
+    }
+  </script>
+</body>
+</html>
